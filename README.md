@@ -1,7 +1,6 @@
 # Package to upload images and videos on cloudinary and save their url into model's database
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/aonodevs/laravel-cloudinary-upload.svg?style=flat-square)](https://packagist.org/packages/aonodevs/laravel-cloudinary-upload)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/aonodevs/laravel-cloudinary-upload.svg?style=flat-square)](https://packagist.org/packages/aonodevs/laravel-cloudinary-upload)
 
 This package provides a trait that adds cloudinary upload behavior to a Eloquent model.
@@ -71,7 +70,3 @@ If you don't set a value `$cloudinary_image` or `$cloudinary_image` the package 
 ## Credits
 
 - [AonoDevs](https://github.com/AonoDevs)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
