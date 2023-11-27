@@ -1,19 +1,14 @@
 # Package to upload images and videos on cloudinary and save their url into model's database
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/aonodevs/laravel-cloudinary-upload.svg?style=flat-square)](https://packagist.org/packages/aonodevs/laravel-cloudinary-upload)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/aonodevs/laravel-cloudinary-upload/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/aonodevs/laravel-cloudinary-upload/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/aonodevs/laravel-cloudinary-upload/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/aonodevs/laravel-cloudinary-upload/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/aonodevs/laravel-cloudinary-upload.svg?style=flat-square)](https://packagist.org/packages/aonodevs/laravel-cloudinary-upload)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This package provides a trait that adds cloudinary upload behavior to a Eloquent model.
 
-## Support us
+It will save the url returned by cloudinary when you want to save an image or video for creation or modification. 
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-cloudinary-upload.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-cloudinary-upload)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+Old images or videos will be removed from cloudinary if the model is deleted or updated.
 
 ## Installation
 
@@ -23,61 +18,59 @@ You can install the package via composer:
 composer require aonodevs/laravel-cloudinary-upload
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="laravel-cloudinary-upload-migrations"
-php artisan migrate
-```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-cloudinary-upload-config"
+php artisan vendor:publish --tag="cloudinary-upload"
 ```
 
 This is the contents of the published config file:
 
 ```php
 return [
+    /*
+     * Your cloudinary upload url
+     */
+    "url" => env('CLOUDINARY_URL')
 ];
 ```
 
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laravel-cloudinary-upload-views"
-```
-
 ## Usage
+To add cloudinary upload behaviour to your model you must:
+
+1. Use the trait AonoDevs\LaravelCloudinaryUpload\CloudinaryTrait.
+2. Write your different fillable attribute which will take into account the url record returned by cloudinary. You must differentiate between images and videos using `$cloudinary_image` and `$cloudinary_video` respectively
+
+## Exemple
 
 ```php
-$laravelCloudinaryUpload = new AonoDevs\LaravelCloudinaryUpload();
-echo $laravelCloudinaryUpload->echoPhrase('Hello, AonoDevs!');
+use AonoDevs\LaravelCloudinaryUpload\CloudinaryTrait;
+// ...
+
+class Article extends Model
+{
+    use CloudinaryTrait;
+
+    protected $fillable = [
+        'title',
+        'header_img', // Image
+        'footer_img', // Image
+        'content_video', // Video
+    ];
+
+    protected array $cloudinary_image = ['header_img', 'footer_img'];
+    
+    protected array $cloudinary_video = ['content_video'];
+    
+    // ...
+}
 ```
-
-## Testing
-
-```bash
-composer test
-```
-
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+If you don't set a value `$cloudinary_image` or `$cloudinary_image` the package will assume that none of your attributes will need to be a cloudinary one and will not run cloudinary upload and url saving.
 
 ## Credits
 
-- [Roriwars](https://github.com/AonoDevs)
-- [All Contributors](../../contributors)
+- [AonoDevs](https://github.com/AonoDevs)
 
 ## License
 
