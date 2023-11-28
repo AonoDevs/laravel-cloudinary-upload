@@ -42,10 +42,16 @@ trait CloudinaryTrait {
     {
         $cloudinaryService = new LaravelCloudinaryUpload();
         foreach ($model->cloudinary_image ?? [] as $image) {
-            if (request()->hasFile($image)) {
-                $validator = Validator::make(['image' => request()->file($image)], [
-                    'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:20048',
-                ]);
+            if (request()->hasFile($image) || request()->has($image)) {
+                if (request()->hasFile($image)) {
+                    $validator = Validator::make(['image' => request()->file($image)], [
+                        'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:20048',
+                    ]);
+                } else if (request()->has($image)) {
+                    $validator = Validator::make(['image' => request()->query($image)], [
+                        'image' => 'required|string',
+                    ]);
+                }
                 if ($validator->passes()) {
                     $value = $cloudinaryService->uploadImage($validator->validated()['image']);
                     $model[$image] = (!str_contains($value, 'upload/f_auto,q_auto')) ? str_replace('upload/', 'upload/f_auto,q_auto/', $value) : $value;
