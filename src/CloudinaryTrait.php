@@ -48,7 +48,7 @@ trait CloudinaryTrait {
                         'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:20048',
                     ]);
                 } else if (request()->has($image)) {
-                    $validator = Validator::make(['image' => request()->query($image)], [
+                    $validator = Validator::make(['image' => request()->input($image)], [
                         'image' => 'required|string',
                     ]);
                 }
