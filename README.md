@@ -21,7 +21,7 @@ composer require aonodevs/laravel-cloudinary-upload
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="cloudinary-upload"
+php artisan vendor:publish --tag="cloudinary-upload-config"
 ```
 
 This is the contents of the published config file:
