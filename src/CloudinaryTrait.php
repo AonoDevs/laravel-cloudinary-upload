@@ -2,8 +2,6 @@
 
 namespace AonoDevs\LaravelCloudinaryUpload;
 
-use Illuminate\Support\Facades\Validator;
-
 trait CloudinaryTrait {
     public static function bootCloudinaryTrait()
     {
@@ -42,29 +40,13 @@ trait CloudinaryTrait {
     {
         $cloudinaryService = new LaravelCloudinaryUpload();
         foreach ($model->cloudinary_image ?? [] as $image) {
-            if (request()->hasFile($image) || request()->has($image)) {
-                if (request()->hasFile($image)) {
-                    $validator = Validator::make(['image' => request()->file($image)], [
-                        'image' => 'required|image|mimes:jpg,jpeg,png,gif|max:20048',
-                    ]);
-                } else if (request()->has($image)) {
-                    $validator = Validator::make(['image' => request()->query($image)], [
-                        'image' => 'required|string',
-                    ]);
-                }
-                if ($validator->passes()) {
-                    $value = $cloudinaryService->uploadImage($validator->validated()['image']);
-                    $model[$image] = (!str_contains($value, 'upload/f_auto,q_auto')) ? str_replace('upload/', 'upload/f_auto,q_auto/', $value) : $value;
-                }
+            if ($model[$image]) {
+                $value = $cloudinaryService->uploadImage($model[$image]);
+                $model[$image] = (!str_contains($value, 'upload/f_auto,q_auto')) ? str_replace('upload/', 'upload/f_auto,q_auto/', $value) : $value;
             }
         }
         foreach ($model->cloudinary_video ?? [] as $video) {
-            if (request()->hasFile($video)) {
-                $validator = Validator::make(['video' => request()->file($video)], [
-                    'video' => 'required|mimes:avi,mp4,mov,webm|max:200000',
-                ]);
-                if ($validator->passes()) $model[$video] = $cloudinaryService->uploadVideo($validator->validated()['video']);
-            }
+            if ($model[$video]) $model[$video] = $cloudinaryService->uploadVideo($model[$video]);
         }
     }
 }
