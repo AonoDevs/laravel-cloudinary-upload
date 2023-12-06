@@ -104,4 +104,11 @@ class LaravelCloudinaryUpload
         if ($isVideo) return $this->cloudinary->uploadApi()->destroy($publicID, ["resource_type" => "video"]);
         return $this->cloudinary->uploadApi()->destroy($publicID);
     }
+
+    public function download(string $name, $public_ids = []){
+        return $this->cloudinary->uploadApi()->downloadZipUrl([
+            'target_public_id' => $name.'.zip',
+            'public_ids' => $public_ids
+        ]);
+    }
 }
