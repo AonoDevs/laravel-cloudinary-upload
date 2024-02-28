@@ -101,8 +101,11 @@ class LaravelCloudinaryUpload
     }
 
     public function delete(String $publicID, bool $isVideo = false){
-        if ($isVideo) return $this->cloudinary->uploadApi()->destroy($publicID, ["resource_type" => "video"]);
-        return $this->cloudinary->uploadApi()->destroy($publicID);
+        if ($publicID){
+            if ($isVideo) return $this->cloudinary->uploadApi()->destroy($publicID, ["resource_type" => "video"]);
+            return $this->cloudinary->uploadApi()->destroy($publicID);
+        }
+        return null;
     }
 
     public function download(string $name, $public_ids = []){
