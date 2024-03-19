@@ -58,7 +58,11 @@ class LaravelCloudinaryUpload
             if (str_starts_with($image, 'data:')) {
                 $image = Helper::fromBase64($image);
             }
-            return $this->uploadImageAndGetUrl($image);
+            if ($image->getClientOriginalExtension() === 'pdf'){
+                return $this->uploadAndGetUrl($image);
+            }else{
+                return $this->uploadImageAndGetUrl($image);
+            }
         }
         return $this->fakerAndCloudinaryImage($image);
     }
