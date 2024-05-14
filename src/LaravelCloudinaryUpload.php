@@ -31,7 +31,7 @@ class LaravelCloudinaryUpload
     private function uploadAndGetUrl(UploadedFile $real_path): string
     {
         $type = "auto";
-        if ($real_path->getMimeType() != 'image/svg+xml') $type = "image";
+        if ($real_path->getMimeType() === 'image/svg+xml') $type = "image";
         $optimizerChain = OptimizerChainFactory::create();
         $optimizerChain->optimize($real_path->getRealPath());
         return $this->cloudinary->uploadApi()->upload($real_path->getRealPath(), [
