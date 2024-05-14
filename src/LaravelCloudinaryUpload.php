@@ -30,10 +30,12 @@ class LaravelCloudinaryUpload
      */
     private function uploadAndGetUrl(UploadedFile $real_path): string
     {
+        $type = "auto";
+        if ($real_path->getMimeType() != 'image/svg+xml') $type = "image";
         $optimizerChain = OptimizerChainFactory::create();
         $optimizerChain->optimize($real_path->getRealPath());
         return $this->cloudinary->uploadApi()->upload($real_path->getRealPath(), [
-            'resource_type' => "auto"
+            'resource_type' => $type
         ])['secure_url'];
     }
 
@@ -93,13 +95,15 @@ class LaravelCloudinaryUpload
 
     private function reduceWidth(UploadedFile $real_path): UploadedFile
     {
-        $image = Image::make($real_path);
-        if ($image->width() > 1024){
-            $image->widen(1024, function($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-            $image->save($real_path->getRealPath(), 80);
+        if ($real_path->getMimeType() != 'image/svg+xml') {
+            $image = Image::make($real_path);
+            if ($image->width() > 1024) {
+                $image->widen(1024, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $image->save($real_path->getRealPath(), 80);
+            }
         }
         return $real_path;
     }
