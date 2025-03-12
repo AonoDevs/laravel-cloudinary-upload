@@ -32,36 +32,48 @@ class LaravelCloudinaryUpload
     {
         $type = "auto";
 
-        // Si l'image est une instance Intervention\Image
-        if ($image instanceof \Intervention\Image\Image) {
-            // Sauvegarder l'image manipulée dans un fichier temporaire
-            $imagePath = tempnam(sys_get_temp_dir(), 'img_') . '.jpg';
-            $image->save($imagePath);
+        try {
+            // Si l'image est une instance Intervention\Image
+            if ($image instanceof \Intervention\Image\Image) {
+                // Sauvegarder l'image manipulée dans un fichier temporaire
+                $imagePath = tempnam(sys_get_temp_dir(), 'img_') . '.jpg';
+                $image->save($imagePath);
 
-            // Optimiser l'image avant de la télécharger
-            $optimizerChain = OptimizerChainFactory::create();
-            $optimizerChain->optimize($imagePath);
+                // Optimiser l'image avant de la télécharger
+                $optimizerChain = OptimizerChainFactory::create();
+                $optimizerChain->optimize($imagePath);
 
-            return $this->cloudinary->uploadApi()->upload($imagePath, [
-                'resource_type' => 'image'
-            ])['secure_url'];
-        }
-
-        // Si c'est un UploadedFile
-        if ($image instanceof UploadedFile) {
-            if ($image->getMimeType() === 'image/svg+xml') {
-                $type = "image";
+                return $this->cloudinary->uploadApi()->upload($imagePath, [
+                    'resource_type' => 'image'
+                ])['secure_url'];
             }
-            $optimizerChain = OptimizerChainFactory::create();
-            $optimizerChain->optimize($image->getRealPath());
 
-            return $this->cloudinary->uploadApi()->upload($image->getRealPath(), [
-                'resource_type' => $type
-            ])['secure_url'];
+            // Si c'est un UploadedFile
+            if ($image instanceof UploadedFile) {
+                if ($image->getMimeType() === 'image/svg+xml') {
+                    $type = "image";
+                }
+                $optimizerChain = OptimizerChainFactory::create();
+                $optimizerChain->optimize($image->getRealPath());
+
+                return $this->cloudinary->uploadApi()->upload($image->getRealPath(), [
+                    'resource_type' => $type
+                ])['secure_url'];
+            }
+
+            // Si ce n'est ni l'un ni l'autre, retourner une erreur
+            throw new Exception('Invalid image type');
+        }catch (\Exception $e){
+            if ($image instanceof UploadedFile) {
+                if ($image->getMimeType() === 'image/svg+xml') {
+                    $type = "image";
+                }
+                return $this->cloudinary->uploadApi()->upload($image->getRealPath(), [
+                    'resource_type' => $type
+                ])['secure_url'];
+            }
+            throw new Exception('Invalid image type');
         }
-
-        // Si ce n'est ni l'un ni l'autre, retourner une erreur
-        throw new Exception('Invalid image type');
     }
 
     /**
@@ -120,30 +132,34 @@ class LaravelCloudinaryUpload
 
     private function reduceWidth($image)
     {
-        // Si c'est une instance Intervention\Image
-        if ($image instanceof \Intervention\Image\Image) {
-            if ($image->width() > 1024) {
-                $image->widen(1024, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
+        try {
+            // Si c'est une instance Intervention\Image
+            if ($image instanceof \Intervention\Image\Image) {
+                if ($image->width() > 1024) {
+                    $image->widen(1024, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                }
             }
-        }
 
-        // Si c'est un UploadedFile
-        if ($image instanceof UploadedFile) {
-            $imageObj = Image::make($image);
-            if ($imageObj->width() > 1024) {
-                $imageObj->widen(1024, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                // Réécrire dans le fichier
-                $imageObj->save($image->getRealPath(), 80);
+            // Si c'est un UploadedFile
+            if ($image instanceof UploadedFile) {
+                $imageObj = Image::make($image);
+                if ($imageObj->width() > 1024) {
+                    $imageObj->widen(1024, function ($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    });
+                    // Réécrire dans le fichier
+                    $imageObj->save($image->getRealPath(), 80);
+                }
             }
-        }
 
-        return $image;
+            return $image;
+        }catch (\Exception $e){
+            return $image;
+        }
     }
 
     public function delete(String $publicID, bool $isVideo = false){
