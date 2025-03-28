@@ -47,7 +47,7 @@ trait CloudinaryTrait {
         }
         foreach ($model->cloudinary_video ?? [] as $video) {
             if ($model[$video]) {
-                $value = $cloudinaryService->uploadImage($model[$video]);
+                $value = $cloudinaryService->uploadVideo($model[$video]);
                 $model[$video] = (!str_contains($value, 'upload/f_auto,q_auto')) ? str_replace('upload/', 'upload/f_auto,q_auto/', $value) : $value;
             }
         }
