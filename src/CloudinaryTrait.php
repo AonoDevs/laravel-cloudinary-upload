@@ -40,13 +40,13 @@ trait CloudinaryTrait {
     {
         $cloudinaryService = new LaravelCloudinaryUpload();
         foreach ($model->cloudinary_image ?? [] as $image) {
-            if ($model[$image]) {
+            if ($model[$image] && $model->isDirty($image)) {
                 $value = $cloudinaryService->uploadImage($model[$image]);
                 $model[$image] = (!str_contains($value, 'upload/f_auto,q_auto')) ? str_replace('upload/', 'upload/f_auto,q_auto/', $value) : $value;
             }
         }
         foreach ($model->cloudinary_video ?? [] as $video) {
-            if ($model[$video]) {
+            if ($model[$video] && $model->isDirty($video)) {
                 $value = $cloudinaryService->uploadVideo($model[$video]);
                 $model[$video] = (!str_contains($value, 'upload/f_auto,q_auto')) ? str_replace('upload/', 'upload/f_auto,q_auto/', $value) : $value;
             }
